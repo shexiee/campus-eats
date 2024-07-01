@@ -172,8 +172,8 @@ body {
     align-items: center;
     width: 3rem; /* Adjust based on your requirement */
     height: 3rem; /* Adjust based on your requirement */
-    overflow: hidden; /* This will crop the SVG if it's too large */
     position: relative;
+    padding: 3px;
     transition: transform 0.3s ease-in-out;
 }
 .svg-container:hover {

@@ -26,11 +26,16 @@ const LoginSignUp = () => {
         if (location.pathname !== '/login' && location.pathname !== '/signup') {
             navigate('/signup');
         }
-        // console.log("isLogin",isLoginFormVisible);
-        // // if (currentUser) {
-        // //     navigate('/');
-        // // }
+
+        
     }, [currentUser, location.pathname, navigate]);
+
+    useEffect(() => {
+        if(currentUser){
+            console.log("navigating to homeasdfasf");
+            navigate('/home')
+        }
+    },[]);
 
     
     const [activeBulletIndex, setActiveBulletIndex] = useState(0);
@@ -154,9 +159,8 @@ const LoginSignUp = () => {
             
             await login(loginEmail, loginPwd);
             console.log("Logged in successfully: ", currentUser);
-
             navigate('/home');
-
+            
         }catch (e) {
             console.log("Error:",e);
             setSuccess('');

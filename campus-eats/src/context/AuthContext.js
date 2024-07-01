@@ -31,19 +31,26 @@ export function AuthProvider({ children }) {
         return unsubscribe;
     }, []);
 
+    async function checkUsernameExists(username) {
+      try {
+          const usernamesQuery = query(collection(db, "users"), where("username", "==", username));
+          const querySnapshot = await getDocs(usernamesQuery);
+          return !querySnapshot.empty;
+      } catch (error) {
+          console.error("Error checking username:", error);
+          throw error;
+      }
+    }
+
     async function signup(email, password, username, firstname, lastname) {
       try {
-          // Check if username already exists
-          const usernamesQuery = query(collection(db, "users"), where("username", "==", username));
-          console.log("usernamesQuery", usernamesQuery);
-          const querySnapshot = await getDocs(usernamesQuery);
-          console.log("querySnapshot", querySnapshot.empty);
-
-          if (!querySnapshot.empty) {
+          // checkUsernameExists(username);
+          const usernameExists = await checkUsernameExists(username);
+          if (usernameExists) {
               throw new Error('The username is already in use by another account.');
           }
   
-          // Proceed with user creation if username is unique
+          // createUserWithEmailAndPassword returns a UserCredential object
           const userCredential = await createUserWithEmailAndPassword(auth, email, password);
           const user = userCredential.user;
   
@@ -77,7 +84,6 @@ export function AuthProvider({ children }) {
   async function login(identifier, password) {
     try {
         let email = identifier;
-
         if (!identifier.includes('@')) {
             const usernamesQuery = query(collection(db, "users"), where("username", "==", identifier));
             const querySnapshot = await getDocs(usernamesQuery);

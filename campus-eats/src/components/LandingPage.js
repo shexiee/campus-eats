@@ -11,12 +11,12 @@ const LandingPage = () => {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (currentUser) {
-        navigate('/home');
-    }
-    console.log(currentUser);
-}, [logout, navigate, currentUser]);
+//   useEffect(() => {
+//     if (currentUser) {
+//         navigate('/home');
+//     }
+//     console.log(currentUser);
+// }, [logout, navigate, currentUser]);
 
   return (
     <div className='landing-page'>

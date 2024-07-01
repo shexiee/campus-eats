@@ -25,6 +25,7 @@ const UserProfile = () => {
     const [courseYear, setCourseYear] = useState('');
     const [schoolId, setSchoolId] = useState('');
     const [oldPwd, setOldPwd] = useState('');
+    const [accountType, setAccountType] = useState('');
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
 
     useEffect(() => {
@@ -43,6 +44,7 @@ const UserProfile = () => {
                       setDob(data.dob || '');
                       setCourseYear(data.course_yr || '');
                       setSchoolId(data.school_id || '');
+                      setAccountType(data.account_type)
                   } else {
                       console.error('Error fetching user data:', data.error);
                   }
@@ -247,6 +249,8 @@ const UserProfile = () => {
                                         </div>
                                     </div>
                                 </div>
+
+                                
                                 <div className="p-two">
                                     {editMode && (
                                       <div className={editMode ? "p-field-two" : "p-field"}>
@@ -314,6 +318,7 @@ const UserProfile = () => {
                                         </>
                                     )}
                                 </div>
+                    
                                 <div className="p-buttons">
                                     <button className="p-logout-button" onClick={logout}>Logout</button>
                                     <button className="p-save-button" onClick={handleSave} disabled={!isFormChanged()}>Save</button>
@@ -322,26 +327,48 @@ const UserProfile = () => {
                         </div>
                     </div>
                 </div>
-                <div className="p-content-current p-content-current-small">
-                    <div className="p-card-current">
-                        <div className="p-upgrade-container">
-                            <div className="p-content">
-                                <div className="p-upgrade-text">
-                                    <h3>Account Type</h3>
-                                    <h4>Regular</h4>
+                
+                    <div className="p-content-current p-content-current-small">
+                        <div className="p-card-current">
+                            <div className="p-upgrade-container">
+                                <div className="p-content">
+                                    <div className="p-upgrade-text">
+                                        <h3>Account Type</h3>
+                                        <h4>{accountType ? accountType : ''}</h4>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="p-info">
-                                <div className="p-upgrade-buttons">
+                            {accountType === 'shop' ? (
+                                <div className="p-info">
+                                    <div className="p-upgrade-buttons">
+                                        <button onClick={() => navigate('/shop-update')} className="p-upgrade-button">Edit Shop</button>
+                                    </div>
+                                </div>
+                            ): accountType === 'dasher' ? (
+                                <div className="p-info">
+                                    <div className="p-upgrade-buttons">
+                                        <button onClick={() => navigate('/dasher-update')} className="p-upgrade-button">Edit Dasher Profile</button>
+                                    </div>
+                                </div>
+                            ): accountType === 'admin' ? (
+                                <>
 
-                                    <button onClick={() => navigate('/dasher-application')} className="p-upgrade-button">Be a Dasher</button>
-                                    <button onClick={() => navigate('/shop-application')} className="p-upgrade-button">Add a Shop</button>
-                                
+                                </>
+                            ): (
+                        
+                                <>
+                                <div className="p-info">
+                                    <div className="p-upgrade-buttons">
+                                        <button onClick={() => navigate('/dasher-application')} className="p-upgrade-button">Be a Dasher</button>
+                                        <button onClick={() => navigate('/shop-application')} className="p-upgrade-button">Add a Shop</button>
+                                    </div>
                                 </div>
+                                </>
+                                 
+                            )}
                             </div>
                         </div>
                     </div>
-                </div>
+                
             </div>
         </>
     );

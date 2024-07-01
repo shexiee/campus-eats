@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircle, faAngleDown, faUser, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
 import CartModal from './CartModal';
+import axios from 'axios';
 
 const Navbar = () => {
     const { currentUser, logout } = useAuth();
@@ -14,6 +15,46 @@ const Navbar = () => {
     const [profilePicURL, setProfilePicURL] = useState('/Assets/profile-picture.jpg');
     const [dropdownActive, setDropdownActive] = useState(false);
     const [showModal, setShowModal] = useState(false);
+    const [userAccountType, setUserAccountType] = useState('');
+    const [cartData, setCartData] = useState(null);
+    useEffect(() => {
+        if(currentUser){
+
+        
+            const fetchUserRole = async () => {
+                try {
+                const response = await axios.get(`http://localhost:5000/api/user-role/${currentUser.uid}`);
+                setUserAccountType(response.data.accountType);
+                console.log(response.data.accountType);
+                } catch (error) {
+                console.error('Error fetching user role:', error);
+                }
+            };
+        
+        fetchUserRole();
+        }
+      }, []);
+
+      useEffect(() => {
+        const fetchCartData = async () => {
+            try {
+                const response = await fetch(`/api/cart?uid=${currentUser.uid}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch cart data');
+                }
+                const data = await response.json();
+                setCartData(data);
+                console.log("navbar data: ",data);
+            } catch (error) {
+                console.error('Error fetching cart data:', error);
+            }
+        };
+
+        
+            console.log("fetching cart data, ",cartData);
+            fetchCartData();
+        
+    }, []);
 
     
     
@@ -91,14 +132,18 @@ const Navbar = () => {
                             </li>
                         </ul>
                     </div>
-                    <div className='nb-cart' onClick={() => setShowModal(!showModal)}>
-                        <div className='nb-cart-icon'>
-                            <img src={'/Assets/cart.png'} alt="Cart" className="nb-image-cart" />
+                    
+                    {userAccountType === 'regular' &&(
+                        <div className='nb-cart' onClick={() => setShowModal(!showModal)}>
+                            <div className='nb-cart-icon'>
+                                <img src={'/Assets/cart.png'} alt="Cart" className="nb-image-cart" />
+                            </div>
+                            <div className='nb-cart-count'>
+                                <span>{cartData ? cartData.items.length : 0}</span>
+
+                            </div>
                         </div>
-                        <div className='nb-cart-count'>
-                            <span>0</span>
-                        </div>
-                    </div>
+                    )}
                 </>
             ) : (
                 <div className="navbar-buttons">
@@ -110,7 +155,7 @@ const Navbar = () => {
 
 
       </div>
-        {currentUser && 
+        {currentUser && userAccountType==='regular' && 
         <div className="nav-side">
             <div className="image-wrapper">
             <Link to="/" style={{textDecoration: 'none'}}>
@@ -140,17 +185,114 @@ const Navbar = () => {
                             </div>
                         </Link>
                     </li>
-                    <li className={`nb-icon ${location.pathname === '/shop' ? 'active' : ''}`}>
-                        <Link to="/shop">
-                            <div className="svg-container">
-                                <img src={'/Assets/shop.svg'} alt="Shop" className={`nb-image ${location.pathname === '/shop' ? 'active' : ''}`} />
-                            </div>
-                        </Link>
-                    </li>
                 </ul>
             </div>
         </div>
         }
+
+        {currentUser && userAccountType==='admin' && 
+            <div className="nav-side">
+                <div className="image-wrapper">
+                <Link to="/" style={{textDecoration: 'none'}}>
+                    <img src={'/Assets/logo.svg'} alt="Logo" className="nb-logo" />
+                </Link>
+                
+                </div>
+                <div className='nav'>
+                    <ul>
+                        <li className={`nb-icon ${location.pathname === '/admin-incoming-order' ? 'active' : ''}`}>
+                            <Link to="/admin-incoming-order">
+                                <div className="svg-container">
+                                    <img src={'/Assets/incoming-icons.svg'} alt="Incoming" className={`nb-image ${location.pathname === '/admin-incoming-order' ? 'active' : ''}`} />
+                                </div>
+                            </Link>
+                        </li>
+                        <li className={`nb-icon ${location.pathname === '/admin-order-history' ? 'active' : ''}`}>
+                            <Link to="/admin-order-history">
+                                <div className="svg-container">
+                                    <img src={'/Assets/orders.svg'} alt="Orders" className={`nb-image ${location.pathname === '/admin-order-history' ? 'active' : ''}`} />
+                                </div>
+                            </Link>
+                        </li>
+                        <li className={`nb-icon ${location.pathname === '/admin-dashers' ? 'active' : ''}`}>
+                            <Link to="/admin-dashers">
+                                <div className="svg-container">
+                                    <img src={'/Assets/dashers-icon.svg'} alt="Dashers" className={`nb-image ${location.pathname === '/admin-dashers' ? 'active' : ''}`} />
+                                </div>
+                            </Link>
+                        </li>
+
+                        <li className={`nb-icon ${location.pathname === '/admin-shops' ? 'active' : ''}`}>
+                            <Link to="/admin-shops">
+                                <div className="svg-container">
+                                    <img src={'/Assets/shop.svg'} alt="shops" className={`nb-image ${location.pathname === '/admin-shops' ? 'active' : ''}`} />
+                                </div>
+                            </Link>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        }
+
+        {currentUser && userAccountType==='dasher' && 
+            <div className="nav-side">
+                <div className="image-wrapper">
+                <Link to="/" style={{textDecoration: 'none'}}>
+                    <img src={'/Assets/logo.svg'} alt="Logo" className="nb-logo" />
+                </Link>
+                </div>
+                <p>{userAccountType}</p>
+                <div className='nav'>
+                    <ul>
+                        <li className={`nb-icon ${location.pathname === '/dasher-incoming-order' ? 'active' : ''}`}>
+                            <Link to="/dasher-incoming-order">
+                                <div className="svg-container">
+                                    <img src={'/Assets/incoming-icons.svg'} alt="Incoming" className={`nb-image ${location.pathname === '/dasher-incoming-order' ? 'active' : ''}`} />
+                                </div>
+                            </Link>
+                        </li>
+                        <li className={`nb-icon ${location.pathname === '/dasher-orders' ? 'active' : ''}`}>
+                            <Link to="/dasher-orders">
+                                <div className="svg-container">
+                                    <img src={'/Assets/orders.svg'} alt="Orders" className={`nb-image ${location.pathname === '/dasher-orders' ? 'active' : ''}`} />
+                                </div>
+                            </Link>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        }
+
+        {currentUser && userAccountType==='shop' && 
+            <div className="nav-side">
+                <div className="image-wrapper">
+                <Link to="/" style={{textDecoration: 'none'}}>
+                    <img src={'/Assets/logo.svg'} alt="Logo" className="nb-logo" />
+                </Link>
+                <p>{userAccountType}</p>
+                </div>
+                <div className='nav'>
+                    <ul>
+                        <li className={`nb-icon ${location.pathname === '/shop-add-item' ? 'active' : ''}`}>
+                            <Link to="/shop-add-item">
+                                <div className="svg-container">
+                                    <img src={'/Assets/add-item.svg'} alt="add item" className={`nb-image ${location.pathname === '/shop-add-item' ? 'active' : ''}`} />
+                                </div>
+                            </Link>
+                        </li>
+                        <li className={`nb-icon ${location.pathname === '/shop-manage-item' ? 'active' : ''}`}>
+                            <Link to="/shop-manage-item">
+                                <div className="svg-container">
+                                    <img src={'/Assets/manage-items.svg'} alt="Orders" className={`nb-image ${location.pathname === '/shop-manage-item' ? 'active' : ''}`} />
+                                </div>
+                            </Link>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        }
+
+        
         
       {showModal && <CartModal showModal={showModal} onClose={CloseShowModal} />}
     </div>
